@@ -1,0 +1,73 @@
+# Pipeline 2 — CI: Build, Scan, Push
+# What:  Builds Docker images, scans for vulnerabilities, pushes to ECR
+# Trigger: push to main or any PR
+# Push to ECR: only on merge to main
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+    paths: [app/**]
+  pull_request:
+    branches: [main]
+    paths: [app/**]
+
+env:
+  AWS_REGION:   eu-west-2
+  ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.eu-west-2.amazonaws.com
+
+jobs:
+  build-and-scan:
+    name: Build, Scan, Push
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region:            ${{ env.AWS_REGION }}
+
+      - name: Login to ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build backend image
+        run: |
+          docker build -t $ECR_REGISTRY/eks-statuspage/backend:sha-${{ github.sha }} \
+            -t $ECR_REGISTRY/eks-statuspage/backend:latest \
+            app/backend
+
+      - name: Build frontend image
+        run: |
+          docker build -t $ECR_REGISTRY/eks-statuspage/frontend:sha-${{ github.sha }} \
+            -t $ECR_REGISTRY/eks-statuspage/frontend:latest \
+            app/frontend
+
+      - name: Trivy — scan backend for vulnerabilities
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.ECR_REGISTRY }}/eks-statuspage/backend:sha-${{ github.sha }}
+          format: table
+          exit-code: 1
+          severity: CRITICAL
+
+      - name: Trivy — scan frontend for vulnerabilities
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.ECR_REGISTRY }}/eks-statuspage/frontend:sha-${{ github.sha }}
+          format: table
+          exit-code: 1
+          severity: CRITICAL
+
+      # Push only on merge to main
+      - name: Push images to ECR
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          docker push $ECR_REGISTRY/eks-statuspage/backend:sha-${{ github.sha }}
+          docker push $ECR_REGISTRY/eks-statuspage/backend:latest
+          docker push $ECR_REGISTRY/eks-statuspage/frontend:sha-${{ github.sha }}
+          docker push $ECR_REGISTRY/eks-statuspage/frontend:latest

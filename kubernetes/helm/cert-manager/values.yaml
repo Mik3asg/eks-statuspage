@@ -1,0 +1,17 @@
+# CertManager — Helm values
+#
+# What:  Automates SSL/TLS certificate provisioning via Let's Encrypt
+# Why:   Pods can't request certs manually — CertManager watches Ingress resources
+#        and issues/renews certificates automatically
+#
+# Install (run after EKS context is set):
+#   helm repo add jetstack https://charts.jetstack.io
+#   helm repo update
+#   helm install cert-manager jetstack/cert-manager \
+#     --namespace cert-manager --create-namespace \
+#     -f kubernetes/helm/cert-manager/values.yaml
+
+# Required — installs the CRDs (ClusterIssuer, Certificate, etc.) that CertManager needs
+installCRDs: true
+
+replicaCount: 2

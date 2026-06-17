@@ -19,7 +19,12 @@ aws_route_table (public)   aws_route_table (private)
         ↓                      ↓
 aws_route_table_association (x4)
 
-1. Why do you need an aws_eip (Elastic IP) alongside the NAT Gateway?
-2. You need two private subnets and two public subnets — how does Terraform let you create multiple subnets without repeating the resource block four times?
-3. The public route table needs a route sending 0.0.0.0/0 to the internet gateway. The private route table needs a route sending 0.0.0.0/0 somewhere else — where, and why?
+Q1. Why do you need an aws_eip (Elastic IP) alongside the NAT Gateway?
+Q2. You need two private subnets and two public subnets — how does Terraform let you create multiple subnets without repeating the resource block four times?
+Q3. The public route table needs a route sending 0.0.0.0/0 to the internet gateway. The private route table needs a route sending 0.0.0.0/0 somewhere else — where, and why?
+
+A1 - NAT GW needs a static public IP -> outbound traffic from worker nodes always
+appears to come from the same IP address
+
+A2 - count or for_each
 

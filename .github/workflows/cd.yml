@@ -1,0 +1,49 @@
+# Pipeline 3 — CD: Deploy to EKS
+# What:  Updates image tags in Kubernetes manifests and commits back to Git
+# Why:   ArgoCD detects the Git change and syncs the new image to the cluster
+# Trigger: CI pipeline completes successfully on main
+
+name: CD
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+
+env:
+  AWS_REGION:   eu-west-2
+  ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.eu-west-2.amazonaws.com
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    name: Update manifests and trigger ArgoCD sync
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update backend image tag in manifest
+        run: |
+          sed -i "s|image: .*/eks-statuspage/backend:.*|image: $ECR_REGISTRY/eks-statuspage/backend:sha-${{ github.event.workflow_run.head_sha }}|" \
+            kubernetes/base/backend/deployment.yaml
+
+      - name: Update frontend image tag in manifest
+        run: |
+          sed -i "s|image: .*/eks-statuspage/frontend:.*|image: $ECR_REGISTRY/eks-statuspage/frontend:sha-${{ github.event.workflow_run.head_sha }}|" \
+            kubernetes/base/frontend/deployment.yaml
+
+      # Commit updated manifests — ArgoCD detects this push and deploys automatically
+      - name: Commit and push updated image tags
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add kubernetes/base/backend/deployment.yaml kubernetes/base/frontend/deployment.yaml
+          git commit -m "chore: update image tags to sha-${{ github.event.workflow_run.head_sha }}"
+          git push

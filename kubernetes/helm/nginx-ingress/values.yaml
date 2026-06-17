@@ -1,0 +1,24 @@
+# NGINX Ingress Controller — Helm values
+#
+# What:  Deploys NGINX as the cluster ingress, exposed via an AWS Network Load Balancer (NLB)
+# Why:   Single entry point for all HTTP/HTTPS traffic into the cluster
+#
+# Install (run after: aws eks update-kubeconfig --name eks-statuspage --region eu-west-2):
+#   helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+#   helm repo update
+#   helm install ingress-nginx ingress-nginx/ingress-nginx \
+#     --namespace ingress-nginx --create-namespace \
+#     -f kubernetes/helm/nginx-ingress/values.yaml
+
+controller:
+  replicaCount: 2
+
+  service:
+    type: LoadBalancer
+    annotations:
+      # Creates an AWS Network Load Balancer (NLB) — faster and cheaper than ALB for ingress
+      service.beta.kubernetes.io/aws-load-balancer-type: nlb
+
+  ingressClassResource:
+    name: nginx
+    default: true

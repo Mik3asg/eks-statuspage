@@ -1,0 +1,50 @@
+# docker-compose.yml — local development stack
+# What:  Wires up frontend + backend + PostgreSQL as a single command (docker compose up)
+# Why:   Mirrors the production topology locally — same ports, same env vars, real DB
+# Usage: docker compose up --build
+
+services:
+
+  # PostgreSQL — runs init.sql on first boot to create schema and seed data
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB:       statuspage
+      POSTGRES_USER:     postgres
+      POSTGRES_PASSWORD: changeme
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./app/backend/db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      retries: 5
+
+  # Backend — Express API + WebSocket server
+  # Waits for db to be healthy before starting (avoids connection errors on boot)
+  backend:
+    build: ./app/backend
+    env_file: ./app/backend/.env
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: statuspage
+      DB_USER: postgres
+      DB_PASSWORD: changeme
+      PORT: 3000
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # Frontend — nginx serving the Vite build, proxying /api and /ws to backend
+  frontend:
+    build: ./app/frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:

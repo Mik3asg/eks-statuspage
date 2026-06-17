@@ -1,0 +1,73 @@
+# Pipeline 1 — Terraform
+# What:  Validates, scans, and deploys infrastructure changes
+# Trigger: any push/PR touching Terraform files
+# On PR:   fmt + validate + checkov + plan (no apply)
+# On merge to main: apply
+
+name: Terraform
+
+on:
+  push:
+    branches: [main]
+    paths: [infrastructure/terraform/**]
+  pull_request:
+    branches: [main]
+    paths: [infrastructure/terraform/**]
+
+env:
+  TF_DIR: infrastructure/terraform/environments/production
+  AWS_REGION: eu-west-2
+
+jobs:
+  terraform:
+    name: Terraform Plan / Apply
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ${{ env.TF_DIR }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.14.3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region:            ${{ env.AWS_REGION }}
+
+      - name: Terraform Format Check
+        run: terraform fmt -check -recursive
+
+      - name: Terraform Init
+        run: terraform init
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Checkov — scan for misconfigurations
+        uses: bridgecrewio/checkov-action@v12
+        with:
+          directory: ${{ env.TF_DIR }}
+          framework: terraform
+          soft_fail: true
+
+      - name: Terraform Plan
+        run: terraform plan -out=tfplan
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+
+      # Apply only on merge to main — not on PRs
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: terraform apply -auto-approve tfplan
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}

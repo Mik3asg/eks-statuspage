@@ -1,0 +1,21 @@
+project_name = "eks-statuspage"
+aws_region   = "eu-west-1"
+
+# Networking
+vpc_cidr             = "10.0.0.0/16"
+public_subnet_cidrs  = ["10.0.1.0/24", "10.0.2.0/24"]
+private_subnet_cidrs = ["10.0.3.0/24", "10.0.4.0/24"]
+
+# EKS
+cluster_name       = "eks-statuspage"
+cluster_version    = "1.29"
+node_instance_type = "t3.medium"
+node_min_size      = 1
+node_max_size      = 3
+node_desired_size  = 2
+
+# DNS — get Zone ID from Cloudflare dashboard → virtualscale.dev → Overview → right sidebar
+cloudflare_zone_id = "your-cloudflare-zone-id"
+
+# Available after first deploy — get from: kubectl get ingress -n production
+load_balancer_hostname = "your-alb-hostname.eu-west-1.elb.amazonaws.com"

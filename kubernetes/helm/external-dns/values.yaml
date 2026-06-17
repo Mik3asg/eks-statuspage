@@ -1,0 +1,32 @@
+# ExternalDNS — Helm values
+#
+# What:  Watches Ingress resources and automatically creates/updates DNS records in Cloudflare
+# Why:   No manual DNS management — records sync automatically when Ingress changes
+#
+# Install (run after EKS context is set):
+#   helm repo add external-dns https://kubernetes-sigs.github.io/external-dns/
+#   helm repo update
+#   helm install external-dns external-dns/external-dns \
+#     --namespace external-dns --create-namespace \
+#     -f kubernetes/helm/external-dns/values.yaml
+
+provider: cloudflare
+
+# Cloudflare API token — create a secret before installing:
+#   kubectl create secret generic cloudflare-api-token \
+#     --from-literal=cloudflare_api_token=<your-token> \
+#     --namespace external-dns
+env:
+  - name: CF_API_TOKEN
+    valueFrom:
+      secretKeyRef:
+        name: cloudflare-api-token
+        key: cloudflare_api_token
+
+# Only manage DNS records that have this annotation on their Ingress:
+#   external-dns.alpha.kubernetes.io/hostname: eks.virtualscale.dev
+policy: sync
+
+# Only create records for resources with matching annotation — don't touch existing records
+registry: txt
+txtOwnerId: eks-statuspage
