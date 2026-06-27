@@ -12,6 +12,7 @@
 #     -f kubernetes/helm/cert-manager/values.yaml
 
 # Required — installs the CRDs (ClusterIssuer, Certificate, etc.) that CertManager needs
-installCRDs: true
+crds:
+  enabled: true
 
 replicaCount: 2
