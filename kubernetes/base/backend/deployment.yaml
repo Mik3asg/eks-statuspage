@@ -17,8 +17,8 @@ spec:
       containers:
         - name: backend
           # Image is replaced by CI/CD pipeline at deploy time
-          #image: <ecr_registry>/eks-statuspage/backend:latest
-          image: 207137402976.dkr.ecr.eu-west-2.amazonaws.com/eks-statuspage/backend:latest
+          #image: 207137402976.dkr.ecr.eu-west-2.amazonaws.com/eks-statuspage/backend:sha-bd2aac4bba813a79159b1be76d4564ffe956b0e1
+          image: 207137402976.dkr.ecr.eu-west-2.amazonaws.com/eks-statuspage/backend:sha-bd2aac4bba813a79159b1be76d4564ffe956b0e1
           ports:
             - containerPort: 3000
           envFrom:
