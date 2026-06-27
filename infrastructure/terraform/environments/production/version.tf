@@ -4,11 +4,11 @@ terraform {
   # Remote state — S3 stores the state file — using the S3 native state locking (Terraform >= 1.10)
   # No DynoDB needed
   backend "s3" {
-    bucket         = "eks-statuspage-terraform-state"
-    key            = "production/terraform.tfstate"
-    region         = "eu-west-2"
-    encrypt        = true
-    use_lockfile   = true
+    bucket       = "eks-statuspage-terraform-state"
+    key          = "production/terraform.tfstate"
+    region       = "eu-west-2"
+    encrypt      = true
+    use_lockfile = true
   }
 
   required_providers {
