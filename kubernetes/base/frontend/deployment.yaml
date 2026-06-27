@@ -16,7 +16,8 @@ spec:
       containers:
         - name: frontend
           # Image is replaced by CI/CD pipeline at deploy time
-          image: <ecr_registry>/eks-statuspage/frontend:latest
+          #image: <ecr_registry>/eks-statuspage/frontend:latest
+          image:207137402976.dkr.ecr.eu-west-2.amazonaws.com/eks-statuspage/frontend:latest
           ports:
             - containerPort: 80
           livenessProbe:

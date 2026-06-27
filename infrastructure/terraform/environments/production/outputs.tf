@@ -22,3 +22,8 @@ output "irsa_frontend_role_arn" {
   description = "IAM role ARN for the frontend service account"
   value       = module.irsa_frontend.role_arn
 }
+
+output "irsa_ebs_csi_role_arn" {
+  description = "IAM role ARN for the EBS CSI driver"
+  value       = module.irsa_ebs_csi.role_arn
+}

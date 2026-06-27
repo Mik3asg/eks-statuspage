@@ -10,7 +10,8 @@
 #     --namespace external-dns --create-namespace \
 #     -f kubernetes/helm/external-dns/values.yaml
 
-provider: cloudflare
+provider:
+  name: cloudflare
 
 # Cloudflare API token — create a secret before installing:
 #   kubectl create secret generic cloudflare-api-token \

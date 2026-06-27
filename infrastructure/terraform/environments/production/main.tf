@@ -63,6 +63,18 @@ module "irsa_frontend" {
   policy_arns             = []
 }
 
+# IRSA for EBS CSI driver — allows the driver to provision EBS volumes
+module "irsa_ebs_csi" {
+  source = "../../modules/irsa"
+
+  cluster_name            = var.cluster_name
+  cluster_oidc_issuer_url = module.eks.cluster_oidc_issuer_url
+  oidc_provider_arn       = module.eks.oidc_provider_arn
+  namespace               = "kube-system"
+  service_account_name    = "ebs-csi-controller-sa"
+  policy_arns             = ["arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"]
+}
+
 # -----------------------------------------------------------------------------
 # ECR — container registries for frontend and backend images
 # -----------------------------------------------------------------------------

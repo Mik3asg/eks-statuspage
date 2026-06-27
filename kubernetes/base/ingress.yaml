@@ -6,13 +6,12 @@ metadata:
   name: statuspage
   namespace: production
   annotations:
-    # NGINX — use the nginx ingress class installed via Helm
-    kubernetes.io/ingress.class: nginx
     # CertManager — automatically issue a Let's Encrypt certificate for this host
     cert-manager.io/cluster-issuer: letsencrypt-prod
     # ExternalDNS — automatically create eks.virtualscale.dev in Cloudflare
     external-dns.alpha.kubernetes.io/hostname: eks.virtualscale.dev
 spec:
+  ingressClassName: nginx
   tls:
     - hosts:
         - eks.virtualscale.dev
