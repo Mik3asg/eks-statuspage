@@ -1,10 +1,11 @@
 # EKS Status Page
 
-A real-time status page application deployed on AWS EKS. Built as a DevOps portfolio project covering infrastructure provisioning, containerisation, Kubernetes, GitOps, and CI/CD.
+A real-time status page application deployed on AWS EKS. Built as a production-grade DevOps portfolio project covering end-to-end infrastructure provisioning (Terraform), containerisation (Docker), Kubernetes, GitOps (ArgoCD), automated DNS (ExternalDNS + Cloudflare), TLS (CertManager + Let's Encrypt), NGINX Ingress, CI/CD (GitHub Actions), container security scanning (Trivy), and IaC security scanning (Checkov).
 
 **Live (portfolio demo - not permanently available):** https://eks.virtualscale.dev
 
 **References:**
+- [Architecture Diagram](docs/architecture.md)
 - [Architecture Decision Records](docs/adr.md)
 - [Troubleshooting](docs/troubleshooting.md)
 
