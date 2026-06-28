@@ -14,6 +14,9 @@
 #   kubectl -n argocd get secret argocd-initial-admin-secret \
 #     -o jsonpath="{.data.password}" | base64 -d
 
+global:
+  domain: argocd.virtualscale.dev
+
 configs:
   params:
     server.insecure: true
@@ -23,10 +26,9 @@ server:
   ingress:
     enabled: true
     ingressClassName: nginx
-    hosts:
-      - argocd.virtualscale.dev
     annotations:
       cert-manager.io/cluster-issuer: letsencrypt-prod
+      external-dns.alpha.kubernetes.io/hostname: argocd.virtualscale.dev
     tls:
       - secretName: argocd-tls
         hosts:
