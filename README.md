@@ -2,7 +2,7 @@
 
 A real-time status page application deployed on AWS EKS. Built as a DevOps portfolio project covering infrastructure provisioning, containerisation, Kubernetes, GitOps, and CI/CD.
 
-**Live:** https://eks.virtualscale.dev
+**Live (portfolio demo - not permanently available):** https://eks.virtualscale.dev
 
 **References:**
 - [Architecture Decision Records](docs/adr.md)

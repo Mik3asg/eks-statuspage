@@ -4,7 +4,25 @@ Each ADR captures a key design choice, the context behind it, and the trade-off 
 
 ---
 
-## ADR-001 - DNS managed by ExternalDNS, not Terraform
+## ADR-001 - Cloudflare DNS over AWS Route 53
+
+**Status:** Accepted
+
+**Context:**
+The project needs a DNS provider to serve the domain `virtualscale.dev`.
+
+**Decision:**
+Use Cloudflare DNS. The domain was already registered and managed there.
+
+**Reason:**
+Migrating to Route 53 would require transferring the domain or updating nameservers - unnecessary overhead with no functional benefit for this project.
+
+**Trade-off:**
+DNS lives outside AWS, adding a dependency on a third-party provider. Accepted because Cloudflare is production-grade and the domain was already there.
+
+---
+
+## ADR-002 - DNS managed by ExternalDNS, not Terraform
 
 **Status:** Accepted
 
@@ -22,7 +40,7 @@ DNS is no longer managed as infrastructure-as-code. Accepted because it is the s
 
 ---
 
-## ADR-002 - S3 native state locking, no DynamoDB
+## ADR-003 - S3 native state locking, no DynamoDB
 
 **Status:** Accepted
 
@@ -40,7 +58,7 @@ Requires Terraform ≥ 1.10. Not backwards compatible with older Terraform versi
 
 ---
 
-## ADR-003 - NGINX Ingress over AWS ALB
+## ADR-004 - NGINX Ingress over AWS ALB
 
 **Status:** Accepted
 
@@ -58,7 +76,7 @@ An extra network hop (NLB → NGINX → service) compared to ALB direct routing.
 
 ---
 
-## ADR-004 - IRSA per service account over node-level IAM
+## ADR-005 - IRSA per service account over node-level IAM
 
 **Status:** Accepted
 
@@ -76,7 +94,7 @@ More complex setup (OIDC provider, role per service account). Accepted as it is 
 
 ---
 
-## ADR-005 - OIDC provider lives in the EKS module, not the IRSA module
+## ADR-006 - OIDC provider lives in the EKS module, not the IRSA module
 
 **Status:** Accepted
 
@@ -94,7 +112,7 @@ The EKS module now owns a resource that conceptually belongs to IAM. Accepted to
 
 ---
 
-## ADR-006 - ArgoCD for GitOps CD, not direct kubectl
+## ADR-007 - ArgoCD for GitOps CD, not direct kubectl
 
 **Status:** Accepted
 
@@ -112,7 +130,7 @@ Adds ArgoCD as an operational dependency. Accepted as it is the standard GitOps 
 
 ---
 
-## ADR-007 - EBS CSI driver uses IRSA, not node IAM
+## ADR-008 - EBS CSI driver uses IRSA, not node IAM
 
 **Status:** Accepted
 
